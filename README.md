@@ -21,5 +21,26 @@ L’utilisation de IF NOT EXISTS garantit que la création est idempotente : le 
 ```sql
 -- Create Databse
 CREATE  DATABASE IF NOT EXISTS  linkedin;
+
 ```
+### 2.2. Création du schéma Bronze 
+text exp
+
+
+```sql
+-- Create Schema BRONZE
+CREATE SCHEMA IF NOT EXISTS linkedin.BRONZE;
+
+```
+### 2.3. Configuration du Stage Externe
+
+un stage Snowflake est configuré pour pointer vers un bucket S3 public. Ce stage joue le rôle d’un connecteur externe permettant à Snowflake d’accéder directement aux fichiers CSV et JSON stockés dans le cloud. Cette étape prépare donc l’ingestion des données provenant de LinkedIn.
+```sql
+CREATE OR REPLACE STAGE LINKEDIN.BRONZE.linkedin_stage
+URL = 's3://snowflake-lab-bucket/';
+
+```
+
+
+
  
