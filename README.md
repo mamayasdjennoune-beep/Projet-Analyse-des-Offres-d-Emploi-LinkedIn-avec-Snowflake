@@ -12,6 +12,7 @@ Fournir des analyses exploitables via SQL et Streamlit afin de mieux comprendre 
 types de postes, niveaux de salaire, secteurs d’activité, tailles d’entreprises et compétences recherchées. 
 
 Ce rapport détaille pas à pas chaque étape, explique chaque script SQL, justifie les choix techniques, et revient en profondeur sur les problèmes rencontrés et leurs solutions. 
+## 2. 1. Création de la Base de Données
 
 Le script commence par la création d’une base de données nommée LINKEDIN, suivie du schéma BRONZE. Cette étape est fondamentale, car elle initialise l’espace de travail dans lequel toutes les données brutes seront déposées.
 L’utilisation de IF NOT EXISTS garantit que la création est idempotente : le script peut être relancé plusieurs fois sans créer de doublons ou générer d’erreurs
