@@ -1,13 +1,13 @@
 
 # I. Introduction 
-## I. 1 Contexte
+## I. 1. Contexte
 Avec l’essor des plateformes professionnelles comme LinkedIn, une grande quantité de données est générée quotidiennement autour du marché de l’emploi : offres d’emploi, compétences demandées, secteurs d’activité, types de contrats, salaires, etc.
 Ces données représentent une source stratégique majeure pour analyser les tendances du recrutement, comprendre les besoins des entreprises et anticiper l’évolution des compétences recherchées.  
 
 Dans ce projet, nous exploitons un jeu de données LinkedIn en mettant en œuvre une architecture data moderne de type Medallion (Bronze / Silver / Gold) sur Snowflake, couplée à une application de visualisation interactive développée avec Streamlit. 
 
 
-## I. 2 Objectifs  
+## I. 2. Objectifs  
 Les objectifs principaux du projet sont :
 
 * Mettre en place une architecture de données robuste et scalable
@@ -15,6 +15,20 @@ Les objectifs principaux du projet sont :
 * Construire des tables analytiques optimisées
 * Réaliser des requêtes d’analyse métiers
 * Développer un tableau de bord interactif pour la visualisation des résultats
+
+  
+## I. 3. Présentation du jeu de données
+Le projet repose sur plusieurs fichiers issus de LinkedIn :
+|Fichier |                      Description  |
+|--------|-----------------------------------|  
+job_postings.csv  | Offres d’emploi (poste, salaire, localisation, type de contrat…) |
+|benefits.csv               | Avantages liés aux offres  |
+|job_skills.csv	                   |  Compétences associées aux offres |
+|employee_counts.csv           |    Taille et popularité des entreprises   |
+|companies.json               |  Informations détaillées sur les entreprises |
+|job_industries.json               |  Secteurs d’activité des offres |
+|company_industries.json	               |  Secteurs des entreprises |
+|company_specialities.json	               | Spécialités des entreprises |
 
 
 
