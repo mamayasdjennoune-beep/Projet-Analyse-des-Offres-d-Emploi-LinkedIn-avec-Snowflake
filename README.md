@@ -44,17 +44,17 @@ Cette approche permet :
 * une séparation claire des responsabilités,
 * une optimisation des performances analytiques.
 
-## 2. Étapes Réalisées
-### 2. 1. Création de la Base de Données
-
-Le script commence par la création d’une base de données nommée LINKEDIN, suivie du schéma BRONZE. Cette étape est fondamentale, car elle initialise l’espace de travail dans lequel toutes les données brutes seront déposées.
-L’utilisation de IF NOT EXISTS garantit que la création est idempotente : le script peut être relancé plusieurs fois sans créer de doublons ou générer d’erreurs
+# II . Étapes Réalisées
+## II . 1. Création de la Base de Données
 
 ```sql
 -- Create Databse
 CREATE  DATABASE IF NOT EXISTS  linkedin;
 
 ```
+* Crée une base de données dédiée au projet
+* Centralise toutes les couches (Bronze, Silver, Gold)
+* IF NOT EXISTS évite les erreurs lors des relances du script
 ### 2.2. Création du schéma Bronze 
 text exp
 
