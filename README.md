@@ -931,11 +931,25 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 SELECT COUNT(*) AS total, COUNT(industry_id) AS non_null_industry
 FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 ```
+Cette requête compte le nombre total d’offres d’emploi.  
+
+Elle compte également le nombre d’offres associées à une industrie.  
+
+La fonction COUNT(industry_id) ignore les valeurs nulles.  
+
+Elle permet d’évaluer la couverture des données par secteur.  
+
 * Comptage des entreprises avec taille connue
 ```sql
 	SELECT COUNT(*) AS total, COUNT(company_size) AS non_null_company_size
 FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 ```
+Cette requête compte le nombre total d’enregistrements analytiques.  
+
+Elle compte les offres liées à une entreprise avec une taille renseignée.  
+
+La comparaison permet d’identifier les données manquantes.  
+
 *  Top 10 des titres de poste par industrie
 ```sql
 	--Top 10 des titres par industrie
@@ -946,6 +960,16 @@ GROUP BY industry_id, title
 QUALIFY ROW_NUMBER() OVER (PARTITION BY industry_id ORDER BY nb_job_postings DESC) <= 10
 ORDER BY industry_id, nb_job_postings DESC;
 ```
+Cette requête analyse les titres de poste les plus fréquents.  
+
+Le regroupement est fait par industry_id et title.  
+
+La fonction COUNT(*) calcule le nombre d’offres par titre.  
+
+La fenêtre ROW_NUMBER() classe les titres par industrie.  
+
+La clause QUALIFY limite le résultat aux 10 premiers titres.  
+
 * Top 10 des postes les mieux payés par industrie
 ```sql
 	--Top 10 des titres les mieux payés par industrie
@@ -957,6 +981,16 @@ QUALIFY ROW_NUMBER() OVER (PARTITION BY industry_id ORDER BY avg_max_salary DESC
 ORDER BY industry_id, avg_max_salary DESC;
 
 ```
+Cette requête analyse les salaires maximums moyens.  
+
+La fonction AVG(max_salary) calcule la moyenne des salaires.  
+
+La fonction ROUND arrondit les valeurs pour une meilleure lisibilité.  
+
+Le classement est effectué par industrie avec ROW_NUMBER().  
+
+Seuls les 10 postes les mieux rémunérés par secteur sont conservés.  
+
 * Répartition des offres par taille d’entreprise
 ```sql
 	--Répartition des offres par taille d’entreprise
@@ -967,6 +1001,14 @@ GROUP BY company_size
 ORDER BY company_size;
 
 ```
+Cette requête analyse la distribution des offres par taille d’entreprise.  
+
+Le regroupement est effectué sur company_size.  
+
+La fonction COUNT(*) mesure le volume d’offres par catégorie.  
+
+Le tri facilite la lecture des résultats.  
+
 * Distribution réelle des entreprises par taille
 ```sql
 	--on compare avec la distribution réelle des entreprises
@@ -977,6 +1019,12 @@ GROUP BY company_size
 ORDER BY company_size;
 
 ```
+Cette requête analyse la distribution réelle des entreprises.  
+
+Elle s’appuie sur la table COMPANY_PROFILE.  
+
+Elle permet de comparer offres publiées et structure du marché.  
+
 * Répartition des offres par industrie
 ```sql
 	-Répartition des offres par industrie
@@ -987,6 +1035,14 @@ GROUP BY industry_id
 ORDER BY nb_job_postings DESC
 LIMIT 30;
 ```
+Cette requête identifie les industries les plus actives.  
+
+Le nombre d’offres est calculé avec COUNT(*).  
+
+Le tri décroissant met en évidence les secteurs dominants.  
+
+La clause LIMIT 30 restreint l’analyse aux principaux secteurs.  
+
 * Répartition des offres par type de contrat
 ```sql
 	--Répartition des offres par type de contrat
@@ -997,8 +1053,14 @@ GROUP BY formatted_work_type
 ORDER BY nb_job_postings DESC;
 
 ```
+Cette requête analyse les types de contrats proposés.  
+ 
+Le regroupement est effectué sur formatted_work_type.  
+
+Elle permet d’identifier les formes d’emploi dominantes.  
+
 * Top 10 des compétences les plus demandées
-  ```sql
+```sql
   --Top 10 des compétences les plus demandées*
 SELECT skill_abr, COUNT(DISTINCT job_id) AS nb_job_postings
 FROM LINKEDIN.GOLD.JOB_SKILLS
@@ -1007,8 +1069,14 @@ GROUP BY skill_abr
 ORDER BY nb_job_postings DESC
 LIMIT 10;
   ```
+Cette requête analyse les types de contrats proposés.  
+
+Le regroupement est effectué sur formatted_work_type.  
+
+Elle permet d’identifier les formes d’emploi dominantes.  
+
 ## II. .8	Application streamlit
-(Explication détaillée du code)
+(Explication détaillée du code
 # III.	Difficultés et solutions apportées 
 # IV.	Conclusions 
 
