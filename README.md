@@ -173,8 +173,9 @@ FILE_FORMAT = (
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.EMPLOYEE_COUNTS;
 ```
-* Table `JOB_SKILLS`
+* Table `JOB_SKILLS`   
   ```sql
+  
    -- Create table JOB_SKILLS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.JOB_SKILLS (
     job_id STRING,
