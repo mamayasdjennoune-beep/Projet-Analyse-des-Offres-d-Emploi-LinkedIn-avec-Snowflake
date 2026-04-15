@@ -132,7 +132,7 @@ SELECT * FROM LINKEDIN.BRONZE.JOB_POSTINGS;
 ```
 *  Table `Benefits` :
 ```sql
-   -- Create table BENEFITS
+-- Create table BENEFITS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.BENEFITS (
     job_id STRING,
     inferred STRING,
