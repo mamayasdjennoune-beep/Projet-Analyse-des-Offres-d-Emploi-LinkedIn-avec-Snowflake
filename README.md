@@ -257,6 +257,16 @@ FILE_FORMAT = (TYPE='JSON');
 select * from LINKEDIN.BRONZE.COMPANY_INDUSTRIES;
 
 ```
+## II. 5.	Création des tables Siver
+	(Explication détaillée du code pour chaque table)
+## II. 6. 	Création des tables Gold
+(Explication détaillée du code pour chaque table)
+## II. 7.	Requêtes d’analyse de données 
+(Explication détaillée du code pour chaque requêtes)
+## II. .8	Application streamlit
+(Explication détaillée du code)
+# III.	Difficultés et solutions apportées 
+# IV.	Conclusions 
 
 
- 
+
