@@ -538,6 +538,25 @@ FROM LINKEDIN.BRONZE.COMPANIES,
 select* from LINKEDIN.SILVER.COMPANIES;
 
 ```
+- La table COMPANIES est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
+- Les données proviennent de la table LINKEDIN.BRONZE.COMPANIES.
+- La fonction LATERAL FLATTEN(input => data) est utilisée pour lire le fichier JSON.
+- Chaque objet JSON est transformé en une ligne relationnelle.
+- L’identifiant de l’entreprise est extrait avec f.value:company_id::BIGINT.
+- Ce champ devient la clé principale de la table.
+- Le nom de l’entreprise est nettoyé avec TRIM et NULLIF.
+- Les chaînes vides sont remplacées par des valeurs nulles.
+- La description est extraite avec f.value:description::STRING.
+- La taille de l’entreprise est convertie en entier avec company_size::INT.
+- Les champs state, country et city sont extraits du JSON.
+- Le code postal est récupéré avec f.value:zip_code::STRING.
+- L’adresse complète est stockée dans le champ address.
+- L’URL de l’entreprise est extraite avec f.value:url::STRING.
+- Toutes les colonnes sont typées lors de l’extraction.
+- Aucune transformation métier complexe n’est appliquée à ce stade.
+- Cette table permet de structurer les données semi‑structurées.
+- Elle prépare les données pour les jointures analytiques futures.
+- La requête SELECT * FROM LINKEDIN.SILVER.COMPANIES permet de vérifier le résultat.
  * Table `EMPLOYEE_COUNTS`
 ```sql
 	-- Create table EMPLOYEE_COUNTS (SILVER)
