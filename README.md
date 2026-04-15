@@ -924,14 +924,89 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 
 
 ## II. 7.	Requêtes d’analyse de données 
-* Table
+* près la construction des tables de la couche `Gold`, des requêtes d’analyse sont mises en place afin d’explorer et d’interpréter les données du marché de l’emploi. Ces requêtes permettent d’identifier les tendances clés liées aux offres d’emploi, aux secteurs d’activité, aux salaires et aux compétences demandées.
+* Comptage global des offres et des industries
 ```sql
-	
+	--Comptage global des données
+SELECT COUNT(*) AS total, COUNT(industry_id) AS non_null_industry
+FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 ```
-* Table
+* Comptage des entreprises avec taille connue
 ```sql
-	
+	SELECT COUNT(*) AS total, COUNT(company_size) AS non_null_company_size
+FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 ```
+*  Top 10 des titres de poste par industrie
+```sql
+	--Top 10 des titres par industrie
+SELECT industry_id, title, COUNT(*) AS nb_job_postings
+FROM LINKEDIN.GOLD.JOB_ANALYTICS
+WHERE industry_id IS NOT NULL AND title IS NOT NULL
+GROUP BY industry_id, title
+QUALIFY ROW_NUMBER() OVER (PARTITION BY industry_id ORDER BY nb_job_postings DESC) <= 10
+ORDER BY industry_id, nb_job_postings DESC;
+```
+* Top 10 des postes les mieux payés par industrie
+```sql
+	--Top 10 des titres les mieux payés par industrie
+SELECT industry_id, title, ROUND(AVG(max_salary), 0) AS avg_max_salary
+FROM LINKEDIN.GOLD.JOB_ANALYTICS
+WHERE industry_id IS NOT NULL AND max_salary IS NOT NULL
+GROUP BY industry_id, title
+QUALIFY ROW_NUMBER() OVER (PARTITION BY industry_id ORDER BY avg_max_salary DESC) <= 10
+ORDER BY industry_id, avg_max_salary DESC;
+
+```
+* Répartition des offres par taille d’entreprise
+```sql
+	--Répartition des offres par taille d’entreprise
+SELECT company_size, COUNT(*) AS nb_job_postings
+FROM LINKEDIN.GOLD.JOB_ANALYTICS
+WHERE company_size IS NOT NULL
+GROUP BY company_size
+ORDER BY company_size;
+
+```
+* Distribution réelle des entreprises par taille
+```sql
+	--on compare avec la distribution réelle des entreprises
+SELECT company_size, COUNT(*) AS nb_companies
+FROM LINKEDIN.GOLD.COMPANY_PROFILE
+WHERE company_size IS NOT NULL
+GROUP BY company_size
+ORDER BY company_size;
+
+```
+* Répartition des offres par industrie
+```sql
+	-Répartition des offres par industrie
+SELECT industry_id, COUNT(*) AS nb_job_postings
+FROM LINKEDIN.GOLD.JOB_ANALYTICS
+WHERE industry_id IS NOT NULL
+GROUP BY industry_id
+ORDER BY nb_job_postings DESC
+LIMIT 30;
+```
+* Répartition des offres par type de contrat
+```sql
+	--Répartition des offres par type de contrat
+SELECT formatted_work_type, COUNT(*) AS nb_job_postings
+FROM LINKEDIN.GOLD.JOB_ANALYTICS
+WHERE formatted_work_type IS NOT NULL
+GROUP BY formatted_work_type
+ORDER BY nb_job_postings DESC;
+
+```
+* Top 10 des compétences les plus demandées
+  ```sql
+  --Top 10 des compétences les plus demandées*
+SELECT skill_abr, COUNT(DISTINCT job_id) AS nb_job_postings
+FROM LINKEDIN.GOLD.JOB_SKILLS
+WHERE skill_abr IS NOT NULL
+GROUP BY skill_abr
+ORDER BY nb_job_postings DESC
+LIMIT 10;
+  ```
 ## II. .8	Application streamlit
 (Explication détaillée du code)
 # III.	Difficultés et solutions apportées 
