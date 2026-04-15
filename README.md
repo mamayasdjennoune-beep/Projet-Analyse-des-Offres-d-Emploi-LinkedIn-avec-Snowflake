@@ -445,7 +445,7 @@ FROM LINKEDIN.BRONZE.JOB_POSTINGS;
 -- Check table content
 SELECT * FROM LINKEDIN.SILVER.JOB_POSTINGS;
 
-	```
+```
  * Table `BENEFITS`
 ```sql
 	-- Create table BENEFITS (SILVER)
