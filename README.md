@@ -40,9 +40,9 @@ L’architecture Medallion se compose de trois couches :
 
 Cette approche permet :
 
-* une meilleure traçabilité,
-* une séparation claire des responsabilités,
-* une optimisation des performances analytiques.
+* Une meilleure traçabilité.
+* Une séparation claire des responsabilités.
+* Une optimisation des performances analytiques.
 
 # II . Étapes Réalisées
 ## II . 1. Création de la Base de Données
@@ -137,8 +137,8 @@ La commande `COPY INTO` permet de charger les données du fichier job_postings.c
 Fonctionnement :
 
 * `@LINKEDIN.BRONZE.LINKEDIN_STAGE` : référence au stage externe (stockage S3)
-* `bjob_postings.csv` : fichier source contenant les offres d’emploi LinkedIn
-* `bCOPY INTO` : méthode optimisée Snowflake pour le chargement massif de données
+* `job_postings.csv` : fichier source contenant les offres d’emploi LinkedIn
+* `COPY INTO` : méthode optimisée Snowflake pour le chargement massif de données
 
 Paramètres du format CSV
 
@@ -155,8 +155,8 @@ Avantages de cette approche
 * Compatibilité avec les fichiers générés automatiquement
 * Réduction des erreurs liées au parsing des chaînes de caractères
 
-  Une rêquete SELECT est ajoutée à la fin afin de voir un apperçu de la table et de bien de vérifier que les données sont corrrectement chrgées.
-  La même la logique est appliquée pour les autre tables dont le fichier source est un fichier csv
+  Une rêquete SELECT est ajoutée à la fin afin de voir un apperçu de la table et de bien vérifier que les données sont corrrectement chrgées.
+  La même  logique est appliquée pour les autre tables dont le fichier source est un fichier csv
 
   
 *  Table `Benefits` :
@@ -255,7 +255,7 @@ Objectifs de ce choix :
 
 Ce choix est cohérent avec la philosophie de la couche Bronze, qui vise à stocker les données sans transformation, telles qu’elles sont reçues.
 
-La commande La commande `COPY INTO` suis le méme raisonement que pour les fichier csv, la seule est différence est les format spécifié est le format : `JSON` 
+La commande `COPY INTO` suis le méme raisonement que pour les fichier csv, la seule est différence est les format spécifié est le format : `JSON` 
 
  La même la logique est appliquée pour les autre tables dont le fichier source est un fichier JSON
 
@@ -305,14 +305,13 @@ FILE_FORMAT = (TYPE='JSON');
 select * from LINKEDIN.BRONZE.COMPANY_INDUSTRIES;
 
 ```
-## II. 5.	Création des tables Silver
+## II. 5.	Création des tables dans le schéma Silver
 ```sql
 -- Create Schema SILVER
 CREATE SCHEMA IF NOT EXISTS LINKEDIN.SILVER;
 ```
-La création du schéma `Silver` suis le même logique que le schéma `Bronze
+La création du schéma `Silver` suis le même logique que le schéma `Bronze`
 
-`
 * Table `JOB_POSTINGS`
 ```sql
 	-- Create table JOB_POSTINGS
@@ -580,7 +579,7 @@ FROM LINKEDIN.BRONZE.EMPLOYEE_COUNTS;
 
 -- Check table content
 SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS;
-
+```
 - La table EMPLOYEE_COUNTS est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.EMPLOYEE_COUNTS.
 - L’identifiant de l’entreprise est converti en numérique avec TRY_TO_NUMBER(company_id).
@@ -596,7 +595,6 @@ SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS;
 - Cette logique garantit une cohérence temporelle des données.
 - La table Silver est entièrement reconstruite à partir de la couche Bronze.
 - La requête SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS permet de vérifier le résultat.
-```
  * Table `JOB_SKILLS`
 ```sql
 	-- Create table JOB_SKILLS
@@ -707,7 +705,7 @@ select* from LINKEDIN.SILVER.COMPANY_SPECIALITIES;
 
  
 
-## II. 6. 	Création des tables Gold
+## II. 6. 	Création des tables dans le schéma Gold
 ```sql
 -- Create schema GOLD
 CREATE SCHEMA IF NOT EXISTS LINKEDIN.GOLD;
@@ -750,6 +748,7 @@ WHERE job_id IS NOT NULL;
 
 -- Check table content
 SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS;
+```
 - La table JOB_POSTINGS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.SILVER.JOB_POSTINGS.
 - Cette table correspond à la version finale des offres d’emploi.
@@ -764,9 +763,6 @@ SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS;
 - Elle sert de source principale pour les tableaux de bord.
 - Elle est utilisée directement par l’application Streamlit.
 - La requête SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS permet de vérifier le contenu final.
-
-
-```
  * Table `JOB_INDUSTRIES`
 ```sql
 	-- Create table JOB_INDUSTRIES
@@ -924,7 +920,7 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 
 
 ## II. 7.	Requêtes d’analyse de données 
-* près la construction des tables de la couche `Gold`, des requêtes d’analyse sont mises en place afin d’explorer et d’interpréter les données du marché de l’emploi. Ces requêtes permettent d’identifier les tendances clés liées aux offres d’emploi, aux secteurs d’activité, aux salaires et aux compétences demandées.
+* Après la construction des tables de la couche `Gold`, des requêtes d’analyse sont mises en place afin d’explorer et d’interpréter les données du marché de l’emploi. Ces requêtes permettent d’identifier les tendances clés liées aux offres d’emploi, aux secteurs d’activité, aux salaires et aux compétences demandées.
 * Comptage global des offres et des industries
 ```sql
 	--Comptage global des données
@@ -1027,7 +1023,7 @@ Elle permet de comparer offres publiées et structure du marché.
 
 * Répartition des offres par industrie
 ```sql
-	-Répartition des offres par industrie
+	--Répartition des offres par industrie
 SELECT industry_id, COUNT(*) AS nb_job_postings
 FROM LINKEDIN.GOLD.JOB_ANALYTICS
 WHERE industry_id IS NOT NULL
@@ -1061,14 +1057,14 @@ Elle permet d’identifier les formes d’emploi dominantes.
 
 * Top 10 des compétences les plus demandées
 ```sql
-  --Top 10 des compétences les plus demandées*
+  --Top 10 des compétences les plus demandées
 SELECT skill_abr, COUNT(DISTINCT job_id) AS nb_job_postings
 FROM LINKEDIN.GOLD.JOB_SKILLS
 WHERE skill_abr IS NOT NULL
 GROUP BY skill_abr
 ORDER BY nb_job_postings DESC
 LIMIT 10;
-  ```
+ ```
 Cette requête analyse les types de contrats proposés.  
 
 Le regroupement est effectué sur formatted_work_type.  
