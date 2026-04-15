@@ -708,20 +708,147 @@ select* from LINKEDIN.SILVER.COMPANY_SPECIALITIES;
  
 
 ## II. 6. 	Création des tables Gold
- * Table
+```sql
+-- Create schema GOLD
+CREATE SCHEMA IF NOT EXISTS LINKEDIN.GOLD;
+```
+* La création du shéma `Gold` suis la même logique que les schémas `Broinze` et `Silver`
+ * Table `JOB_POSTING`
 	```sql
-	
-	```
- * Table
+	-- Create table JOB_POSTINGS (GOLD)
+CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_POSTINGS AS
+SELECT
+    job_id,
+    company_name,
+    title,
+    description,
+    max_salary,
+    med_salary,
+    min_salary,
+    pay_period,
+    formatted_work_type,
+    location,
+    applies,
+    original_listed_time,
+    remote_allowed,
+    views,
+    job_posting_url,
+    application_url,
+    application_type,
+    expiry,
+    closed_time,
+    formatted_experience_level,
+    skills_desc,
+    listed_time,
+    posting_domain,
+    sponsored,
+    work_type,
+    currency,
+    compensation_type
+FROM LINKEDIN.SILVER.JOB_POSTINGS
+WHERE job_id IS NOT NULL;
+
+-- Check table content
+SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS;
+
+```
+ * Table `JOB_INDUSTRIES`
 	```sql
-	
+	-- Create table JOB_INDUSTRIES
+CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_INDUSTRIES AS
+SELECT
+    job_id,
+    industry_id
+FROM LINKEDIN.SILVER.JOB_INDUSTRIES
+WHERE job_id IS NOT NULL
+  AND industry_id IS NOT NULL;
+  
+-- Check table content
+select * from LINKEDIN.GOLD.JOB_INDUSTRIES;
 	```
- * Table
-	```sql
+ * Table `JOB_SKILLS`
+```sql
+	CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_SKILLS AS
+SELECT
+    job_id,
+    skill_abr
+FROM LINKEDIN.SILVER.JOB_SKILLS
+WHERE job_id IS NOT NULL
+  AND skill_abr IS NOT NULL;
+
+-- Check table content
+SELECT * FROM LINKEDIN.GOLD.JOB_SKILLS;
+```
+* Table `COMPANY_PROFILE`
+```sql
+	-- Create table COMPANY_PROFILE 
+CREATE OR REPLACE TABLE LINKEDIN.GOLD.COMPANY_PROFILE AS
+SELECT
+    c.company_id,
+    c.name,
+    c.company_size,
+    c.city,
+    c.state,
+    c.country,
+    ec.employee_count,
+    ec.follower_count
+FROM LINKEDIN.SILVER.COMPANIES c
+LEFT JOIN LINKEDIN.SILVER.EMPLOYEE_COUNTS ec
+    ON c.company_id = ec.company_id
+WHERE c.company_id IS NOT NULL;
+
+-- Check table content
+SELECT * FROM LINKEDIN.GOLD.COMPANY_PROFILE;
+
+```
+* Table `JOB_ANALYTICS`
+```sql
+-- Create table JOB_ANALYTICS
+CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_ANALYTICS AS
+SELECT
+    jp.job_id,
+    jp.title,
+
+    -- VRAI nom d'entreprise, issu de COMPANY_PROFILE
+    cp.name AS company_name,
+
+    jp.formatted_work_type,
+    jp.work_type,
+    jp.remote_allowed,
+    jp.formatted_experience_level,
+    jp.min_salary,
+    jp.med_salary,
+    jp.max_salary,
+    jp.currency,
+
+    ji.industry_id,
+
+    cp.company_size,
+    cp.country,
+
+    jp.listed_time
+FROM LINKEDIN.GOLD.JOB_POSTINGS jp
+LEFT JOIN LINKEDIN.GOLD.JOB_INDUSTRIES ji
+    ON jp.job_id = ji.job_id
+LEFT JOIN LINKEDIN.GOLD.COMPANY_PROFILE cp
+    --  company_name dans JOB_POSTINGS = identifiant → on le convertit
+    ON TRY_TO_NUMBER(jp.company_name) = cp.company_id;
+
+-- Check table content
+SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 	
-	```
+```
+
+
 ## II. 7.	Requêtes d’analyse de données 
-(Explication détaillée du code pour chaque requêtes)
+* Table
+```sql
+	
+```
+* Table
+```sql
+	
+```
 ## II. .8	Application streamlit
 (Explication détaillée du code)
 # III.	Difficultés et solutions apportées 
