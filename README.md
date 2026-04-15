@@ -714,7 +714,7 @@ CREATE SCHEMA IF NOT EXISTS LINKEDIN.GOLD;
 ```
 * La création du shéma `Gold` suis la même logique que les schémas `Broinze` et `Silver`
  * Table `JOB_POSTING`
-	```sql
+```sql
 	-- Create table JOB_POSTINGS (GOLD)
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_POSTINGS AS
 SELECT
@@ -753,7 +753,7 @@ SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS;
 
 ```
  * Table `JOB_INDUSTRIES`
-	```sql
+```sql
 	-- Create table JOB_INDUSTRIES
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_INDUSTRIES AS
 SELECT
@@ -765,7 +765,7 @@ WHERE job_id IS NOT NULL
   
 -- Check table content
 select * from LINKEDIN.GOLD.JOB_INDUSTRIES;
-	```
+```
  * Table `JOB_SKILLS`
 ```sql
 	CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_SKILLS AS
