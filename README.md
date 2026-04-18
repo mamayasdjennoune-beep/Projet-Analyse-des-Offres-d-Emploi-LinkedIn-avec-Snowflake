@@ -301,15 +301,10 @@ select * from LINKEDIN.BRONZE.COMPANY_INDUSTRIES;
 
 ```
 ## II. 5.	Création des tables dans le schéma Silver
-```sql
--- Create Schema SILVER
-CREATE SCHEMA IF NOT EXISTS LINKEDIN.SILVER;
-```
-La création du schéma `Silver` suis le même logique que le schéma `Bronze, il a pour rôle de nettoyer, typer et normaliser les données issues de la couche Bronze en appliquant des règles de qualité et de cohérence, afin de préparer des données fiables et structurées pour l’analyse.
 
-* Table `JOB_POSTINGS`
+### Code
 ```sql
-	-- Create table JOB_POSTINGS
+-- Create table JOB_POSTINGS
 CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_POSTINGS AS
 SELECT
     job_id::BIGINT AS job_id,
@@ -441,12 +436,166 @@ SELECT
     currency,
     compensation_type
 
-FROM LINKEDIN.BRONZE.JOB_POSTINGS;
+FROM LINKEDIN.BRONZE.JOB_POSTINGS
 
+QUALIFY
+    ROW_NUMBER() OVER (
+        PARTITION BY job_id
+        ORDER BY TRY_TO_TIMESTAMP(listed_time) DESC
+    ) = 1;
 -- Check table content
 SELECT * FROM LINKEDIN.SILVER.JOB_POSTINGS;
 
+-- Create table BENEFITS (SILVER)
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.BENEFITS AS
+SELECT
+    job_id::BIGINT AS job_id,
+
+    -- Normalisation FR/EN des booléens
+    CASE
+        WHEN LOWER(TRIM(inferred)) IN ('true','1','yes','vrai','oui') THEN TRUE
+        WHEN LOWER(TRIM(inferred)) IN ('false','0','no','faux','non') THEN FALSE
+        ELSE NULL
+    END AS inferred,
+
+    -- Nettoyage du type (pas de traduction automatique possible)
+    NULLIF(TRIM(type), '') AS type
+
+FROM LINKEDIN.BRONZE.BENEFITS
+
+
+QUALIFY
+    ROW_NUMBER() OVER (
+        PARTITION BY job_id, LOWER(TRIM(type))
+        ORDER BY job_id
+    ) = 1;
+-- Check table content
+SELECT * FROM LINKEDIN.SILVER.BENEFITS;
+
+
+
+--Create table COMPANIES
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANIES AS
+SELECT
+    f.value:company_id::BIGINT  AS company_id,
+    NULLIF(TRIM(f.value:name::STRING), '') AS name,
+    f.value:description::STRING AS description,
+    f.value:company_size::INT   AS company_size,
+    f.value:state::STRING       AS state,
+    f.value:country::STRING     AS country,
+    f.value:city::STRING        AS city,
+    f.value:zip_code::STRING    AS zip_code,
+    f.value:address::STRING     AS address,
+    f.value:url::STRING         AS url
+FROM LINKEDIN.BRONZE.COMPANIES,
+     LATERAL FLATTEN(input => data) f;
+--Check table content
+select* from LINKEDIN.SILVER.COMPANIES;
+
+
+-- Create table EMPLOYEE_COUNTS (SILVER)
+;
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.EMPLOYEE_COUNTS AS
+SELECT
+    TRY_TO_NUMBER(company_id) AS company_id,
+    TRY_TO_NUMBER(NULLIF(TRIM(employee_count), '')) AS employee_count,
+    TRY_TO_NUMBER(NULLIF(TRIM(follower_count), '')) AS follower_count,
+    CASE
+        WHEN TRY_TO_NUMBER(time_recorded) > 100000000000
+            THEN TO_TIMESTAMP_NTZ(TRY_TO_NUMBER(time_recorded) / 1000)
+        ELSE TO_TIMESTAMP_NTZ(TRY_TO_NUMBER(time_recorded))
+    END AS time_recorded
+FROM LINKEDIN.BRONZE.EMPLOYEE_COUNTS
+QUALIFY
+    ROW_NUMBER() OVER (
+        PARTITION BY TRY_TO_NUMBER(company_id)
+        ORDER BY TRY_TO_NUMBER(time_recorded) DESC
+    ) = 1;
+-- Check table content
+SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS;
+
+-- Create table JOB_SKILLS
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_SKILLS AS
+SELECT
+    TRY_TO_NUMBER(job_id) AS job_id,
+    UPPER(TRIM(skill_abr)) AS skill_abr
+FROM LINKEDIN.BRONZE.JOB_SKILLS
+QUALIFY
+    ROW_NUMBER() OVER (
+        PARTITION BY TRY_TO_NUMBER(job_id), UPPER(TRIM(skill_abr))
+        ORDER BY job_id
+    ) = 1;
+
+-- Check table content
+SELECT * FROM LINKEDIN.SILVER.JOB_SKILLS;
+
+--Create table JOB_INDUSTRIES 
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_INDUSTRIES AS
+SELECT
+    job_id,
+    industry_id
+FROM (
+    SELECT
+        f.value:job_id::BIGINT AS job_id,
+        f.value:industry_id::INT AS industry_id,
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                f.value:job_id::BIGINT,
+                f.value:industry_id::INT
+            ORDER BY f.value:job_id
+        ) AS rn
+    FROM LINKEDIN.BRONZE.JOB_INDUSTRIES,
+         LATERAL FLATTEN(input => data) f
+)
+WHERE rn = 1;
+--Create table COMPANY_INDUSTRIES
+
+     CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANY_INDUSTRIES AS
+SELECT
+    company_id,
+    industry
+FROM (
+    SELECT
+        f.value:company_id::BIGINT AS company_id,
+        LOWER(TRIM(f.value:industry::STRING)) AS industry,
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                f.value:company_id::BIGINT,
+                LOWER(TRIM(f.value:industry::STRING))
+            ORDER BY f.value:company_id
+        ) AS rn
+    FROM LINKEDIN.BRONZE.COMPANY_INDUSTRIES,
+         LATERAL FLATTEN(input => data) f
+)
+WHERE rn = 1;
+-- Check table content
+select* from LINKEDIN.SILVER.COMPANY_INDUSTRIES;
+
+--Create table COMPANY_SPECIALITIES
+CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANY_SPECIALITIES AS
+SELECT
+    company_id,
+    speciality
+FROM (
+    SELECT
+        f.value:company_id::BIGINT AS company_id,
+        LOWER(TRIM(f.value:speciality::STRING)) AS speciality,
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                f.value:company_id::BIGINT,
+                LOWER(TRIM(f.value:speciality::STRING))
+            ORDER BY f.value:company_id
+        ) AS rn
+    FROM LINKEDIN.BRONZE.COMPANY_SPECIALITIES,
+         LATERAL FLATTEN(input => data) f
+)
+WHERE rn = 1;
+     
+-- Check table content
+select* from LINKEDIN.SILVER.COMPANY_SPECIALITIES;
+
 ```
+* Table `JOB_POSTINGS`
 - La table JOB_POSTINGS est créée dans la couche Silver avec l’instruction CREATE OR REPLACE TABLE.
 - Les données proviennent directement de LINKEDIN.BRONZE.JOB_POSTINGS via la clause FROM.
 - L’identifiant de l’offre est converti en numérique avec job_id::BIGINT.
@@ -469,32 +618,11 @@ SELECT * FROM LINKEDIN.SILVER.JOB_POSTINGS;
 - Le niveau d’expérience est standardisé grâce à un CASE WHEN sur formatted_experience_level.
 - Les colonnes skills_desc, currency et compensation_type sont conservées sans transformation.
 - La table Silver est ainsi reconstruite à partir de la table Bronze.
+- La déduplication est réalisée via `ROW_NUMBER()` combiné à `QUALIFY`, en conservant uniquement l’offre la plus récente  par `job_id`.
 - La requête SELECT * FROM LINKEDIN.SILVER.JOB_POSTINGS permet de vérifier le résultat final.
 
  * Table `BENEFITS`
-```sql
-	-- Create table BENEFITS (SILVER)
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.BENEFITS AS
-SELECT
-    job_id::BIGINT AS job_id,
 
-    -- Normalisation FR/EN des booléens
-    CASE
-        WHEN LOWER(TRIM(inferred)) IN ('true','1','yes','vrai','oui') THEN TRUE
-        WHEN LOWER(TRIM(inferred)) IN ('false','0','no','faux','non') THEN FALSE
-        ELSE NULL
-    END AS inferred,
-
-    -- Nettoyage du type (pas de traduction automatique possible)
-    NULLIF(TRIM(type), '') AS type
-
-FROM LINKEDIN.BRONZE.BENEFITS;
-
--- 
-SELECT * FROM LINKEDIN.SILVER.BENEFITS;
-
-
-```
 - La table BENEFITS est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Elle est construite à partir de la table LINKEDIN.BRONZE.BENEFITS via la clause FROM.
 - L’identifiant de l’offre est converti en numérique avec job_id::BIGINT.
@@ -510,28 +638,10 @@ SELECT * FROM LINKEDIN.SILVER.BENEFITS;
 - Aucune traduction automatique n’est appliquée au champ type.
 - Les données sont ainsi standardisées sans perte d’information.
 - La table Silver est entièrement reconstruite à partir de la couche Bronze.
+-  La déduplication garantit une seule occurrence par couple `(job_id, type)`.
 - La requête SELECT * FROM LINKEDIN.SILVER.BENEFITS permet de vérifier le résultat final.
  * Table `COMPANIES`
-```sql
-	--Create table COMPANIES
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANIES AS
-SELECT
-    f.value:company_id::BIGINT  AS company_id,
-    NULLIF(TRIM(f.value:name::STRING), '') AS name,
-    f.value:description::STRING AS description,
-    f.value:company_size::INT   AS company_size,
-    f.value:state::STRING       AS state,
-    f.value:country::STRING     AS country,
-    f.value:city::STRING        AS city,
-    f.value:zip_code::STRING    AS zip_code,
-    f.value:address::STRING     AS address,
-    f.value:url::STRING         AS url
-FROM LINKEDIN.BRONZE.COMPANIES,
-     LATERAL FLATTEN(input => data) f;
---Check table COMPANIES
-select* from LINKEDIN.SILVER.COMPANIES;
 
-```
 - La table COMPANIES est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.COMPANIES.
 - La fonction LATERAL FLATTEN(input => data) est utilisée pour lire le fichier JSON.
@@ -552,29 +662,7 @@ select* from LINKEDIN.SILVER.COMPANIES;
 - Elle prépare les données pour les jointures analytiques futures.
 - La requête SELECT * FROM LINKEDIN.SILVER.COMPANIES permet de vérifier le résultat.
  * Table `EMPLOYEE_COUNTS`
-```sql
-	-- Create table EMPLOYEE_COUNTS (SILVER)
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.EMPLOYEE_COUNTS AS
-SELECT
-    TRY_TO_NUMBER(company_id) AS company_id,
 
-    TRY_TO_NUMBER(NULLIF(TRIM(employee_count), '')) AS employee_count,
-    TRY_TO_NUMBER(NULLIF(TRIM(follower_count), '')) AS follower_count,
-
-    -- Gestion seconds vs milliseconds
-    CASE
-        WHEN TRY_TO_NUMBER(time_recorded) IS NULL THEN NULL
-        WHEN TRY_TO_NUMBER(time_recorded) > 100000000000  -- ~ 10^11 → probablement millisecondes
-            THEN TO_TIMESTAMP_NTZ(TRY_TO_NUMBER(time_recorded) / 1000)
-        ELSE
-            TO_TIMESTAMP_NTZ(TRY_TO_NUMBER(time_recorded)) -- secondes
-    END AS time_recorded
-
-FROM LINKEDIN.BRONZE.EMPLOYEE_COUNTS;
-
--- Check table content
-SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS;
-```
 - La table EMPLOYEE_COUNTS est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.EMPLOYEE_COUNTS.
 - L’identifiant de l’entreprise est converti en numérique avec TRY_TO_NUMBER(company_id).
@@ -589,42 +677,16 @@ SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS;
 - Les valeurs nulles sont explicitement gérées dans le CASE.
 - Cette logique garantit une cohérence temporelle des données.
 - La table Silver est entièrement reconstruite à partir de la couche Bronze.
+- Une déduplication explicite est appliquée afin de conserver uniquement l’enregistrement le plus récent par entreprise.
 - La requête SELECT * FROM LINKEDIN.SILVER.EMPLOYEE_COUNTS permet de vérifier le résultat.
  * Table `JOB_SKILLS`
-```sql
-	-- Create table JOB_SKILLS
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_SKILLS AS
-SELECT
-    TRY_TO_NUMBER(job_id) AS job_id,
-    NULLIF(TRIM(skill_abr), '') AS skill_abr
-FROM LINKEDIN.BRONZE.JOB_SKILLS;
-
--- Check table content
-SELECT * FROM LINKEDIN.SILVER.JOB_SKILLS;
-```
-- La table JOB_SKILLS est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
-- Les données proviennent de la table LINKEDIN.BRONZE.JOB_SKILLS.
-- L’identifiant de l’offre est converti en numérique avec TRY_TO_NUMBER(job_id).
-- Cette conversion permet d’utiliser job_id pour les jointures analytiques.
-- Le champ skill_abr est nettoyé avec TRIM(skill_abr).
-- La fonction NULLIF(..., '') remplace les chaînes vides par NULL.
-- Aucune transformation métier complexe n’est appliquée à ce champ.
-- Les compétences sont conservées sous forme abrégée.
-- La table Silver est reconstruite à partir de la couche Bronze.
-- Elle est prête à être utilisée dans la couche Gold.
+- La table JOB_SKILLS est créée à partir de la couche Bronze.
+- L’identifiant de l’offre est converti en numérique.
+- Les compétences sont nettoyées et normalisées en majuscules afin d’éviter les doublons liés à la casse.
+- Une déduplication est appliquée sur la clé métier (job_id, skill_abr).
+- Cette approche garantit une seule occurrence de chaque compétence par offre.
 - La requête SELECT * FROM LINKEDIN.SILVER.JOB_SKILLS permet de vérifier le contenu
  * Table `JOB_INDUSTRIES`
-```sql
-	--Create table JOB_INDUSTRIES 
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_INDUSTRIES AS
-SELECT
-    f.value:job_id::BIGINT        AS job_id,
-    f.value:industry_id::INT     AS industry_id
-FROM LINKEDIN.BRONZE.JOB_INDUSTRIES,
-     LATERAL FLATTEN(input => data) f;
---Check table JOB_INDUSTRIES 
-select* from LINKEDIN.SILVER.JOB_INDUSTRIES;
-```
 - La table JOB_INDUSTRIES est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.JOB_INDUSTRIES.
 - La fonction LATERAL FLATTEN(input => data) est utilisée pour parcourir le fichier JSON.
@@ -633,64 +695,28 @@ select* from LINKEDIN.SILVER.JOB_INDUSTRIES;
 - Ce champ est converti en type numérique.
 - L’identifiant du secteur est extrait avec f.value:industry_id::INT.
 - Ce champ est également typé en entier.
-- Aucune transformation métier n’est appliquée à ces valeurs.
-- La table permet d’associer chaque offre à un secteur d’activité.
-- Elle facilite les analyses par industrie dans les couches ultérieures.
-- Les données sont structurées à partir de données semi‑structurées.
+- Une déduplication explicite est appliquée sur (job_id, industry_id) à l’aide de ROW_NUMBER().
 - La table Silver est entièrement reconstruite depuis la couche Bronze.
 - La requête SELECT * FROM LINKEDIN.SILVER.JOB_INDUSTRIES permet de vérifier le résultat.
 
 * Table `COMPANY_INDUSTRIES`
-```sql
---Create table COMPANY_INDUSTRIES
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANY_INDUSTRIES AS
-SELECT
-    f.value:company_id::BIGINT AS company_id,
-    NULLIF(TRIM(f.value:industry::STRING), '') AS industry
-FROM LINKEDIN.BRONZE.COMPANY_INDUSTRIES,
-     LATERAL FLATTEN(input => data) f;
-     
--- Check table content
-select* from LINKEDIN.SILVER.COMPANY_INDUSTRIES;
-```
 - La table COMPANY_INDUSTRIES est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.COMPANY_INDUSTRIES.
 - La fonction LATERAL FLATTEN(input => data) est utilisée pour parcourir le JSON.
-- Chaque association entreprise–industrie devient une ligne.
-- L’identifiant de l’entreprise est extrait avec f.value:company_id::BIGINT.
-- Ce champ est converti en type numérique.
-- Le secteur d’activité est extrait avec f.value:industry::STRING.
-- Le champ industry est nettoyé avec TRIM.
-- La fonction NULLIF(..., '') remplace les chaînes vides par NULL.
-- Aucune normalisation métier n’est appliquée au secteur.
-- La table permet d’associer chaque entreprise à son industrie.
-- Les données semi‑structurées sont transformées en format relationnel.
+-  L’identifiant de l’entreprise est extrait avec f.value:company_id::BIGINT.
+-  Le secteur d’activité est extrait avec f.value:industry::STRING.
+- Le champ industry est normalisé avec LOWER(TRIM(...)).
+- Une déduplication est appliquée sur (company_id, industry).
 - La table Silver est reconstruite à partir de la couche Bronze.
-- Elle est prête pour les jointures analytiques dans la couche Gold.
 - La requête SELECT * FROM LINKEDIN.SILVER.COMPANY_INDUSTRIES permet de vérifier le résultat.
 
  * Table `COMPANY_SPECIALITIES`
-```sql
-	--Create table COMPANY_SPECIALITIES
-CREATE OR REPLACE TABLE LINKEDIN.SILVER.COMPANY_SPECIALITIES AS
-SELECT
-    f.value:company_id::BIGINT AS company_id,
-    NULLIF(TRIM(f.value:speciality::STRING), '') AS speciality
-FROM LINKEDIN.BRONZE.COMPANY_SPECIALITIES,
-     LATERAL FLATTEN(input => data) f;
-     
--- Check table content
-select* from LINKEDIN.SILVER.COMPANY_SPECIALITIES;
-```
 - La table COMPANY_SPECIALITIES est créée dans la couche Silver avec CREATE OR REPLACE TABLE.
 - Les données proviennent de la table LINKEDIN.BRONZE.COMPANY_SPECIALITIES.
 - La fonction LATERAL FLATTEN(input => data) est utilisée pour parcourir le fichier JSON.
-- Chaque spécialité est transformée en une ligne distincte.
 - L’identifiant de l’entreprise est extrait avec f.value:company_id::BIGINT.
-- Ce champ est converti en type numérique.
 - La spécialité est extraite avec f.value:speciality::STRING.
-- Le champ speciality est nettoyé avec TRIM.
-- La fonction NULLIF(..., '') remplace les chaînes vides par NULL.
+- La casse et les espaces sont neutralisés via `LOWER(TRIM())`.
 - Aucune traduction automatique n’est appliquée aux spécialités.
 - La table permet d’associer chaque entreprise à ses domaines d’expertise.
 - Les données semi‑structurées sont converties en format relationnel.
