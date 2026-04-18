@@ -714,22 +714,24 @@ La création du schéma `Silver` suis le même logique que le schéma `Bronze, i
 - Une déduplication explicite est appliquée sur (company_id, speciality).
 - La table est prête à être utilisée dans la couche Gold.
 ### Apperçu des tables du schéma Silver
-#### Table JOB_POSTINGS
-
-#### Table BENEFITS
-
-#### Table COMPANIES
-
-#### Table EMPLOYEE_COUNTS
-
-#### Table JOB_SKILLS
-
-#### Table JOB_INDUSTRIES
-
-#### Table COMPANY_INDUSTRIES
-
+#### Table `JOB_POSTINGS`
+![job](images/job_posting_silver1.png)
+![job](images/job_posting_silver2.png)
+![job](images/job_posting_silver3.png)
+#### Table `BENEFITS`
+![job](images/benefits_silver.png)
+#### Table `COMPANIES`
+![job](images/companies_silver.png)
+#### Table `EMPLOYEE_COUNTS`
+![job](images/employee_counts_silver.png)
+#### Table `JOB_SKILLS`
+![job](images/job_skills_silver.png)
+#### Table `JOB_INDUSTRIES`
+![job](images/job_industries_silver.png)
+#### Table `COMPANY_INDUSTRIES`
+![job](images/cmpanies_industries_silver.png)
 #### Table COMPANY_SPECIALITIES
-
+![job](images/companies_specialite_silver.png)
 
 ## II. 6. 	Création des tables dans le schéma Gold
 ### Code
