@@ -732,25 +732,46 @@ La création du schéma `Silver` suis le même logique que le schéma `Bronze, i
 - Aucune traduction automatique n’est appliquée aux spécialités.
 - Une déduplication explicite est appliquée sur (company_id, speciality).
 - La table est prête à être utilisée dans la couche Gold.
-### Apperçu des tables du schéma Silver
+### Apperçu des tables du schéma `Silver`
 #### Table `JOB_POSTINGS`
 ![job](images/job_posting_silver1.png)
 ![job](images/job_posting_silver2.png)
 ![job](images/job_posting_silver.png)
+
+*Les résultats montrent que la table `LINKEDIN.SILVER.JOB_POSTINGS` contient des données structurées et normalisées sur les offres d’emploi, avec des salaires convertis en valeurs numériques, des dates transformées en timestamps, des indicateurs booléens homogénéisés et la suppression des doublons.
+
 #### Table `BENEFITS`
 ![job](images/benefits_silver.png)
+
+* Les résultats montrent que la table `LINKEDIN.SILVER.BENEFITS` contient des données normalisées sur les avantages associés aux offres d’emploi, avec un indicateur inferred converti en valeur booléenne et des types d’avantages nettoyés et homogénéisés.
+
 #### Table `COMPANIES`
 ![job](images/companies_silver.png)
+
+* Les résultats montrent que la table `LINKEDIN.SILVER.COMPANIES` contient des données d’entreprises structurées et nettoyées, avec des identifiants uniques, des informations de localisation, des tailles d’entreprise converties en valeurs numériques et des champs textuels homogénéisés.
+  
 #### Table `EMPLOYEE_COUNTS`
 ![job](images/employee_counts_silver.png)
+* Les résultats montrent que la table `LINKEDIN.SILVER.EMPLOYEE_COUNTS` contient des données consolidées et normalisées sur les entreprises, avec des effectifs et des nombres d’abonnés convertis en valeurs numériques et un horodatage unique par entreprise.
 #### Table `JOB_SKILLS`
 ![job](images/job_skills_silver.png)
+
+* Les résultats montrent que la table `LINKEDIN.SILVER.JOB_SKILLS` contient des associations normalisées entre les offres d’emploi et leurs compétences, avec des identifiants d’offres convertis en valeurs numériques et des codes de compétences nettoyés et homogénéisés.
+  
 #### Table `JOB_INDUSTRIES`
 ![job](images/job_industries_silver.png)
+
+* Les résultats montrent que la table `LINKEDIN.SILVER.JOB_INDUSTRIES` contient des associations nettoyées et dédupliquées entre les offres d’emploi et les identifiants d’industries, avec des champs numériques cohérents.
+  
 #### Table `COMPANY_INDUSTRIES`
 ![job](images/cmpanies_industries_silver.png)
+
+* Les résultats montrent que la table LINKEDIN.SILVER.COMPANY_INDUSTRIES contient des associations normalisées et dédupliquées entre les entreprises et leurs secteurs d’activité, avec des libellés d’industries nettoyés et homogénéisés.
+
 #### Table COMPANY_SPECIALITIES
 ![job](images/companies_specialite_silver.png)
+
+* Les résultats montrent que la table LINKEDIN.SILVER.COMPANY_SPECIALITIES contient des données normalisées et dédupliquées sur les domaines de spécialisation des entreprises, avec des libellés nettoyés et homogénéisés.
 
 ## II. 6. 	Création des tables dans le schéma Gold
 ### Code
