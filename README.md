@@ -278,7 +278,7 @@ Après chaque chargement, une requête SELECT * est exécutée afin de vérifier
 #### Table `EMPLOYEE_COUNTS`
 ![job](images/employee_counts_bronze.png)
 #### Table `JOB_SKILLS`
-![job](images/.png)
+![job](images/job_skills.png)
 #### Table `JOB_INDUSTRIES`
 ![job](images/job_industries_bronze.png)
 #### Table `COMPANY_INDUSTRIES`
