@@ -194,9 +194,9 @@ top_size = df3.sort_values("NB_JOBS", ascending=False).iloc[0]
 st.success(f"👉 Most opportunities come from company size: {top_size['COMPANY_SIZE']}")
 
 # ================================
-# 🌍 4. INDUSTRY HIRING (WAFFLE CHART PREMIUM)
+# 🌍 4. INDUSTRY HIRING 
 # ================================
-st.markdown("## 🌍 Hiring by Industry")
+st.markdown("## 🌍 Répartition des offres d’emploi par secteur d’activité")
 
 query4 = """
 SELECT industry_id, COUNT(*) AS nb_jobs
@@ -226,7 +226,7 @@ df_waffle = pd.DataFrame(waffle, columns=["industry", "value"])
 df_waffle["id"] = range(len(df_waffle))
 
 # ================================
-# 📊 WAFFLE VISUAL (COULEURS CORRIGÉES)
+# 📊 WAFFLE VISUAL 
 # ================================
 chart4 = alt.Chart(df_waffle).mark_square(size=120).encode(
     x=alt.X("id:Q", axis=None),
@@ -266,7 +266,7 @@ st.info(f"""
 """)
 
 # ================================
-# 📌 5. EMPLOIS PAR TYPE (VERSION PREMIUM FR)
+# 📌 5. EMPLOIS PAR TYPE 
 # ================================
 st.markdown("## 📌 Répartition des types de contrats")
 
@@ -281,7 +281,7 @@ ORDER BY nb_jobs DESC
 df5 = session.sql(query5).to_pandas()
 
 # ================================
-# 🎨 STYLE KPI MODERNE (CARDS COLORÉES)
+# 🎨 STYLE KPI MODERNE 
 # ================================
 st.markdown("""
 <style>
@@ -308,7 +308,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================================
-# 🔥 GRAPHIQUE (SEULEMENT COULEURS MODIFIÉES)
+# 🔥 GRAPHIQUE 
 # ================================
 chart5 = alt.Chart(df5).mark_bar(
     cornerRadiusTopLeft=6,
@@ -348,7 +348,7 @@ chart5 = alt.Chart(df5).mark_bar(
 st.altair_chart(chart5, use_container_width=True)
 
 # ================================
-# 💎 KPI CARDS (INCHANGÉ)
+# 💎 KPI CARDS 
 # ================================
 cols = st.columns(len(df5))
 
