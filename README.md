@@ -260,7 +260,7 @@ Ce choix permet :
 La commande COPY INTO est également utilisée pour charger les fichiers JSON, en précisant simplement un format différent.La logique de chargement reste identique à celle des CSV, la seule différence réside dans le format spécifié (JSON au lieu de CSV).
 
 Après chaque chargement, une requête SELECT * est exécutée afin de vérifier immédiatement le contenu de la table BRONZE et s’assurer que les données ont été correctement ingérées
-### Apperçu des tables du schéma Silver
+### Apperçu des tables du schéma `Bronze`
 #### Table JOB_POSTINGS
 ![job](images/job_posting_bronze1.png)
 
@@ -273,39 +273,39 @@ Après chaque chargement, une requête SELECT * est exécutée afin de vérifier
 #### Table `BENEFITS`
 ![job](images/benefits_bronze.png)
 
-* Les résultats montrent que la table BENEFITS contient des informations détaillées sur les avantages associés aux offres d’emploi, avec des indicateurs inferred et des types d’avantages exprimés sous forme textuelle et numérique, l’ensemble des colonnes prévues dans le fichier CSV ayant été correctement chargé sans transformation.
+* Les résultats montrent que la table `BENEFITS` contient des informations détaillées sur les avantages associés aux offres d’emploi, avec des indicateurs inferred et des types d’avantages exprimés sous forme textuelle et numérique, l’ensemble des colonnes prévues dans le fichier CSV ayant été correctement chargé sans transformation.
 
 #### Table `COMPANIES`
 ![job](images/companies_bronze.png)
 
-* Les résultats montrent que la table LINKEDIN.BRONZE.COMPANIES contient des données d’entreprises stockées sous forme JSON dans une colonne de type VARIANT, incluant des informations telles que l’identifiant de l’entreprise, la localisation, la taille et la description, l’ensemble des données ayant été chargé tel quel depuis le fichier source sans transformation.
+* Les résultats montrent que la table `COMPANIES` contient des données d’entreprises stockées sous forme JSON dans une colonne de type VARIANT, incluant des informations telles que l’identifiant de l’entreprise, la localisation, la taille et la description, l’ensemble des données ayant été chargé tel quel depuis le fichier source sans transformation.
 
 #### Table `EMPLOYEE_COUNTS`
 ![job](images/employee_counts_bronze.png)
 
-* Les résultats montrent que la table EMPLOYEE_COUNTS contient des informations brutes sur la taille des entreprises et leur popularité, avec des effectifs, des nombres d’abonnés et des horodatages stockés sous des formats numériques et textuels encore non normalisés, l’ensemble des colonnes du fichier CSV ayant été correctement chargé.
+* Les résultats montrent que la table `EMPLOYEE_COUNTS` contient des informations brutes sur la taille des entreprises et leur popularité, avec des effectifs, des nombres d’abonnés et des horodatages stockés sous des formats numériques et textuels encore non normalisés, l’ensemble des colonnes du fichier CSV ayant été correctement chargé.
 
 #### Table `JOB_SKILLS`
 ![job](images/job_skills.png)
 
-* Les résultats montrent que la table JOB_SKILLS contient des associations entre les offres d’emploi et les compétences correspondantes, identifiées par des codes abrégés, avec des doublons possibles et des valeurs encore non normalisées, l’ensemble des colonnes du fichier CSV ayant été correctement chargé.
+* Les résultats montrent que la table `JOB_SKILLS` contient des associations entre les offres d’emploi et les compétences correspondantes, identifiées par des codes abrégés, avec des doublons possibles et des valeurs encore non normalisées, l’ensemble des colonnes du fichier CSV ayant été correctement chargé.
 
 #### Table `JOB_INDUSTRIES`
 ![job](images/job_industries_bronze.png)
 
-* Les résultats montrent que la table JOB_INDUSTRIES contient des associations entre les offres d’emploi et leurs secteurs d’activité, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, les informations ayant été chargées telles quelles depuis le fichier source sans transformation.
+* Les résultats montrent que la table `JOB_INDUSTRIES` contient des associations entre les offres d’emploi et leurs secteurs d’activité, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, les informations ayant été chargées telles quelles depuis le fichier source sans transformation.
 
 #### Table `COMPANY_INDUSTRIES`
 ![job](images/cmpanies_industries_bronze.png)
 
-* Les résultats montrent que la table COMPANY_INDUSTRIES contient des associations entre les entreprises et leurs secteurs d’activité, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, l’ensemble des informations ayant été chargé depuis le fichier source sans transformation préalable.
+* Les résultats montrent que la table `COMPANY_INDUSTRIES` contient des associations entre les entreprises et leurs secteurs d’activité, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, l’ensemble des informations ayant été chargé depuis le fichier source sans transformation préalable.
   
 #### Table `COMPANY_SPECIALITIES`
 ![job](images/companies_specialite_bronze.png)
 
-* Les résultats montrent que la table COMPANY_SPECIALITIES contient des informations sur les domaines de spécialisation des entreprises, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, l’ensemble des spécialités ayant été chargé tel quel depuis le fichier source sans transformation.
+* Les résultats montrent que la table `COMPANY_SPECIALITIES` contient des informations sur les domaines de spécialisation des entreprises, stockées sous forme de données semi‑structurées (JSON) dans une colonne VARIANT, l’ensemble des spécialités ayant été chargé tel quel depuis le fichier source sans transformation.
 
-## II. 5.	Création des tables dans le schéma Silver
+## II. 5.	Création des tables dans le schéma `Silver`
 
 ### Code
 ```sql
