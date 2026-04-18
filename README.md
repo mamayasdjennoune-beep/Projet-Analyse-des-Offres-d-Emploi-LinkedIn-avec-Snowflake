@@ -560,6 +560,8 @@ WHERE rn = 1;
 select* from LINKEDIN.SILVER.COMPANY_SPECIALITIES;
 
 ```
+#### Schéma `Silver`
+La création du schéma `Silver` suis le même logique que le schéma `Bronze, il a pour rôle de nettoyer, typer et normaliser les données issues de la couche Bronze en appliquant des règles de qualité et de cohérence, afin de préparer des données fiables et structurées pour l’analyse.
 #### Table `JOB_POSTINGS`
 - La table JOB_POSTINGS est créée dans la couche Silver avec l’instruction CREATE OR REPLACE TABLE.
 - Les données proviennent directement de LINKEDIN.BRONZE.JOB_POSTINGS via la clause FROM.
