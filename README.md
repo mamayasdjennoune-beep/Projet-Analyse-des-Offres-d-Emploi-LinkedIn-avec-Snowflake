@@ -1,4 +1,3 @@
-<img width="743" height="367" alt="image" src="https://github.com/user-attachments/assets/94b3afa4-d9c5-4851-b6e2-7f5240ee3527" />
 # I. Introduction 
 ## I. 1. Contexte
 Avec l’essor des plateformes professionnelles comme LinkedIn, une grande quantité de données est générée quotidiennement autour du marché de l’emploi : offres d’emploi, compétences demandées, secteurs d’activité, types de contrats, salaires, etc.
