@@ -700,14 +700,12 @@ La création du schéma `Silver` suis le même logique que le schéma `Bronze, i
  
 
 ## II. 6. 	Création des tables dans le schéma Gold
+### Code
 ```sql
 -- Create schema GOLD
 CREATE SCHEMA IF NOT EXISTS LINKEDIN.GOLD;
-```
-* La création du schéma `Gold` suis la même logique que les schémas `Bronze` et `Silver`, il a pour rôle de consolider et d’enrichir les données nettoyées afin de produire des tables analytiques optimisées, directement exploitables pour les analyses métier et les outils de visualisation.
- * Table `JOB_POSTING`
-```sql
-	-- Create table JOB_POSTINGS (GOLD)
+
+-- Create table JOB_POSTINGS (GOLD)
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_POSTINGS AS
 SELECT
     job_id,
@@ -742,24 +740,8 @@ WHERE job_id IS NOT NULL;
 
 -- Check table content
 SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS;
-```
-- La table JOB_POSTINGS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
-- Les données proviennent de la table LINKEDIN.SILVER.JOB_POSTINGS.
-- Cette table correspond à la version finale des offres d’emploi.
-- Toutes les colonnes nettoyées en Silver sont conservées.
-- Aucune transformation supplémentaire n’est appliquée aux champs.
-- Le filtrage WHERE job_id IS NOT NULL garantit l’intégrité des données.
-- Ce filtre élimine les offres sans identifiant valide.
-- Les champs salariaux sont déjà normalisés en amont.
-- Les champs temporels sont déjà convertis en timestamps.
-- Les champs booléens sont déjà standardisés.
-- La table Gold est prête pour l’analyse métier.
-- Elle sert de source principale pour les tableaux de bord.
-- Elle est utilisée directement par l’application Streamlit.
-- La requête SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS permet de vérifier le contenu final.
- * Table `JOB_INDUSTRIES`
-```sql
-	-- Create table JOB_INDUSTRIES
+
+-- Create table JOB_INDUSTRIES
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_INDUSTRIES AS
 SELECT
     job_id,
@@ -770,23 +752,10 @@ WHERE job_id IS NOT NULL
   
 -- Check table content
 select * from LINKEDIN.GOLD.JOB_INDUSTRIES;
-```
-- La table JOB_INDUSTRIES est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
-- Les données proviennent de la table LINKEDIN.SILVER.JOB_INDUSTRIES.
-- Cette table contient les associations entre offres et secteurs.
-- Seules les colonnes job_id et industry_id sont sélectionnées.
-- Le filtre WHERE job_id IS NOT NULL garantit un identifiant valide.
-- Le filtre AND industry_id IS NOT NULL garantit un secteur valide.
-- Ces filtres améliorent la qualité des données analytiques.
-- Aucune transformation supplémentaire n’est appliquée aux champs.
-- La table Gold est optimisée pour l’analyse par industrie.
-- Elle est utilisée dans les requêtes analytiques finales.
-- Elle est exploitée par l’application Streamlit.
-- La requête SELECT * FROM LINKEDIN.GOLD.JOB_INDUSTRIES permet de vérifier le contenu.
-  
- * Table `JOB_SKILLS`
-```sql
-	CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_SKILLS AS
+
+
+-- Create table JOB_SKILLS 
+CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_SKILLS AS
 SELECT
     job_id,
     skill_abr
@@ -796,22 +765,9 @@ WHERE job_id IS NOT NULL
 
 -- Check table content
 SELECT * FROM LINKEDIN.GOLD.JOB_SKILLS;
-```
-- La table JOB_SKILLS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
-- Les données proviennent de la table LINKEDIN.SILVER.JOB_SKILLS.
-- Seules les colonnes job_id et skill_abr sont sélectionnées.
-- Le filtre WHERE job_id IS NOT NULL garantit un identifiant valide.
-- Le filtre AND skill_abr IS NOT NULL garantit une compétence valide.
-- Ces filtres améliorent la qualité des données analytiques.
-- Aucune transformation supplémentaire n’est appliquée aux champs.
-- La table Gold contient uniquement des associations exploitables.
-- Elle permet d’analyser les compétences par offre d’emploi.
-- Elle est utilisée dans les analyses finales et les tableaux de bord.
-- La requête SELECT * FROM LINKEDIN.GOLD.JOB_SKILLS permet de vérifier le contenu.
-  
-* Table `COMPANY_PROFILE`
-```sql
-	-- Create table COMPANY_PROFILE 
+
+
+-- Create table COMPANY_PROFILE 
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.COMPANY_PROFILE AS
 SELECT
     c.company_id,
@@ -830,26 +786,7 @@ WHERE c.company_id IS NOT NULL;
 -- Check table content
 SELECT * FROM LINKEDIN.GOLD.COMPANY_PROFILE;
 
-```
-- La table COMPANY_PROFILE est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
-- Les données proviennent de la table LINKEDIN.SILVER.COMPANIES, référencée par l’alias c.
-- Les informations sur les effectifs proviennent de LINKEDIN.SILVER.EMPLOYEE_COUNTS, référencée par l’alias ec.
-- Les deux tables sont reliées avec un LEFT JOIN.
-- La jointure est effectuée sur c.company_id = ec.company_id.
-- Le LEFT JOIN permet de conserver toutes les entreprises.
-- Les entreprises sans données d’effectifs sont néanmoins conservées.
-- Les champs company_id, name et company_size sont sélectionnés depuis la table COMPANIES.
-- Les champs city, state et country décrivent la localisation de l’entreprise.
-- Les champs employee_count et follower_count proviennent de la table EMPLOYEE_COUNTS.
-- Le filtre WHERE c.company_id IS NOT NULL garantit un identifiant valide.
-- Aucune transformation supplémentaire n’est appliquée aux champs.
-- La table Gold regroupe les informations clés des entreprises.
-- Elle sert de référence pour les analyses métier.
-- Elle est utilisée dans les jointures avec les offres d’emploi.
-- La requête SELECT * FROM LINKEDIN.GOLD.COMPANY_PROFILE permet de vérifier le contenu final.
 
-* Table `JOB_ANALYTICS`
-```sql
 -- Create table JOB_ANALYTICS
 CREATE OR REPLACE TABLE LINKEDIN.GOLD.JOB_ANALYTICS AS
 SELECT
@@ -883,8 +820,76 @@ LEFT JOIN LINKEDIN.GOLD.COMPANY_PROFILE cp
 
 -- Check table content
 SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
-	
+
 ```
+#### Schéma `Gold`
+ La création du schéma `Gold` suis la même logique que les schémas `Bronze` et `Silver`, il a pour rôle de consolider et d’enrichir les données nettoyées afin de produire des tables analytiques optimisées, directement exploitables pour les analyses métier et les outils de visualisation.
+#### Table `JOB_POSTING`
+
+- La table JOB_POSTINGS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
+- Les données proviennent de la table LINKEDIN.SILVER.JOB_POSTINGS.
+- Cette table correspond à la version finale des offres d’emploi.
+- Toutes les colonnes nettoyées en Silver sont conservées.
+- Aucune transformation supplémentaire n’est appliquée aux champs.
+- Le filtrage WHERE job_id IS NOT NULL garantit l’intégrité des données.
+- Ce filtre élimine les offres sans identifiant valide.
+- Les champs salariaux sont déjà normalisés en amont.
+- Les champs temporels sont déjà convertis en timestamps.
+- Les champs booléens sont déjà standardisés.
+- La table Gold est prête pour l’analyse métier.
+- Elle sert de source principale pour les tableaux de bord.
+- Elle est utilisée directement par l’application Streamlit.
+- La requête SELECT * FROM LINKEDIN.GOLD.JOB_POSTINGS permet de vérifier le contenu final.
+ #### Table `JOB_INDUSTRIES`
+
+- La table JOB_INDUSTRIES est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
+- Les données proviennent de la table LINKEDIN.SILVER.JOB_INDUSTRIES.
+- Cette table contient les associations entre offres et secteurs.
+- Seules les colonnes job_id et industry_id sont sélectionnées.
+- Le filtre WHERE job_id IS NOT NULL garantit un identifiant valide.
+- Le filtre AND industry_id IS NOT NULL garantit un secteur valide.
+- Ces filtres améliorent la qualité des données analytiques.
+- Aucune transformation supplémentaire n’est appliquée aux champs.
+- La table Gold est optimisée pour l’analyse par industrie.
+- Elle est utilisée dans les requêtes analytiques finales.
+- Elle est exploitée par l’application Streamlit.
+- La requête SELECT * FROM LINKEDIN.GOLD.JOB_INDUSTRIES permet de vérifier le contenu.
+  
+ ### Table `JOB_SKILLS`
+
+- La table JOB_SKILLS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
+- Les données proviennent de la table LINKEDIN.SILVER.JOB_SKILLS.
+- Seules les colonnes job_id et skill_abr sont sélectionnées.
+- Le filtre WHERE job_id IS NOT NULL garantit un identifiant valide.
+- Le filtre AND skill_abr IS NOT NULL garantit une compétence valide.
+- Ces filtres améliorent la qualité des données analytiques.
+- Aucune transformation supplémentaire n’est appliquée aux champs.
+- La table Gold contient uniquement des associations exploitables.
+- Elle permet d’analyser les compétences par offre d’emploi.
+- Elle est utilisée dans les analyses finales et les tableaux de bord.
+- La requête SELECT * FROM LINKEDIN.GOLD.JOB_SKILLS permet de vérifier le contenu.
+  
+### Table `COMPANY_PROFILE`
+
+- La table COMPANY_PROFILE est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
+- Les données proviennent de la table LINKEDIN.SILVER.COMPANIES, référencée par l’alias c.
+- Les informations sur les effectifs proviennent de LINKEDIN.SILVER.EMPLOYEE_COUNTS, référencée par l’alias ec.
+- Les deux tables sont reliées avec un LEFT JOIN.
+- La jointure est effectuée sur c.company_id = ec.company_id.
+- Le LEFT JOIN permet de conserver toutes les entreprises.
+- Les entreprises sans données d’effectifs sont néanmoins conservées.
+- Les champs company_id, name et company_size sont sélectionnés depuis la table COMPANIES.
+- Les champs city, state et country décrivent la localisation de l’entreprise.
+- Les champs employee_count et follower_count proviennent de la table EMPLOYEE_COUNTS.
+- Le filtre WHERE c.company_id IS NOT NULL garantit un identifiant valide.
+- Aucune transformation supplémentaire n’est appliquée aux champs.
+- La table Gold regroupe les informations clés des entreprises.
+- Elle sert de référence pour les analyses métier.
+- Elle est utilisée dans les jointures avec les offres d’emploi.
+- La requête SELECT * FROM LINKEDIN.GOLD.COMPANY_PROFILE permet de vérifier le contenu final.
+
+### Table `JOB_ANALYTICS`
+
 - La table JOB_ANALYTICS est créée dans la couche Gold avec CREATE OR REPLACE TABLE.
 - Elle constitue la table analytique centrale du projet.
 - Les données principales proviennent de LINKEDIN.GOLD.JOB_POSTINGS, alias jp.
@@ -914,7 +919,7 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 
 
 ## II. 7.	Requêtes d’analyse de données 
-* Après la construction des tables de la couche `Gold`, des requêtes d’analyse sont mises en place afin d’explorer et d’interpréter les données du marché de l’emploi. Ces requêtes permettent d’identifier les tendances clés liées aux offres d’emploi, aux secteurs d’activité, aux salaires et aux compétences demandées.
+Après la construction des tables de la couche `Gold`, des requêtes d’analyse sont mises en place afin d’explorer et d’interpréter les données du marché de l’emploi. Ces requêtes permettent d’identifier les tendances clés liées aux offres d’emploi, aux secteurs d’activité, aux salaires et aux compétences demandées.
 * Comptage global des offres et des industries
 ```sql
 	--Comptage global des données
