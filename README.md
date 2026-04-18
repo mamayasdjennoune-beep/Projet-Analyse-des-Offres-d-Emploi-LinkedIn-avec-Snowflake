@@ -269,6 +269,8 @@ Après chaque chargement, une requête SELECT * est exécutée afin de vérifier
 
 ### Code
 ```sql
+-- Create Schema SILVER
+CREATE SCHEMA IF NOT EXISTS LINKEDIN.SILVER;
 -- Create table JOB_POSTINGS
 CREATE OR REPLACE TABLE LINKEDIN.SILVER.JOB_POSTINGS AS
 SELECT
