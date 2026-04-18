@@ -260,9 +260,23 @@ Ce choix permet :
 * Repousser l’interprétation et la structuration des données à la couche Silver.
 La commande COPY INTO est également utilisée pour charger les fichiers JSON, en précisant simplement un format différent.La logique de chargement reste identique à celle des CSV, la seule différence réside dans le format spécifié (JSON au lieu de CSV).
 
-
-
 Après chaque chargement, une requête SELECT * est exécutée afin de vérifier immédiatement le contenu de la table BRONZE et s’assurer que les données ont été correctement ingérées
+### Apperçu des tables du schéma Silver
+#### Table JOB_POSTINGS
+
+#### Table BENEFITS
+
+#### Table COMPANIES
+
+#### Table EMPLOYEE_COUNTS
+
+#### Table JOB_SKILLS
+
+#### Table JOB_INDUSTRIES
+
+#### Table COMPANY_INDUSTRIES
+
+#### Table COMPANY_SPECIALITIES
 
 
 ## II. 5.	Création des tables dans le schéma Silver
@@ -692,6 +706,23 @@ La création du schéma `Silver` suis le même logique que le schéma `Bronze, i
 - Aucune traduction automatique n’est appliquée aux spécialités.
 - Une déduplication explicite est appliquée sur (company_id, speciality).
 - La table est prête à être utilisée dans la couche Gold.
+### Apperçu des tables du schéma Silver
+#### Table JOB_POSTINGS
+
+#### Table BENEFITS
+
+#### Table COMPANIES
+
+#### Table EMPLOYEE_COUNTS
+
+#### Table JOB_SKILLS
+
+#### Table JOB_INDUSTRIES
+
+#### Table COMPANY_INDUSTRIES
+
+#### Table COMPANY_SPECIALITIES
+
 
 ## II. 6. 	Création des tables dans le schéma Gold
 ### Code
@@ -909,6 +940,22 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 - Elle est utilisée par les requêtes analytiques finales.
 - Elle sert de source principale pour l’application Streamlit.
 - La requête SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS permet de vérifier le contenu.
+- ### Apperçu des tables du schéma Silver
+#### Table JOB_POSTINGS
+
+#### Table BENEFITS
+
+#### Table COMPANIES
+
+#### Table EMPLOYEE_COUNTS
+
+#### Table JOB_SKILLS
+
+#### Table JOB_INDUSTRIES
+
+#### Table COMPANY_INDUSTRIES
+
+#### Table COMPANY_SPECIALITIES
 
 
 
