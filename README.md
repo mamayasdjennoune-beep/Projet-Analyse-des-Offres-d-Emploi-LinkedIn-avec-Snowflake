@@ -74,15 +74,8 @@ URL = 's3://snowflake-lab-bucket/';
 * Facilite les commandes COPY INTO
   
 ## 2.4 Création des tables dans le shéma Bronze et chargement des données
-Pour chaque type de fichier (job postings, benefits, skills, employee counts…), une table est créée dans la couche BRONZE avec toutes les colonnes en STRING. Ce choix volontaire suit la philosophie de la couche BRONZE : stocker la donnée telle qu’elle existe, sans transformation, sans typage, sans prise de décision métier. Cela garantit une ingestion fiable, même si les fichiers contiennent des irrégularités.
-
-
-La commande COPY INTO est ensuite utilisée pour importer les données depuis le stage S3 vers Snowflake. L’option SKIP_HEADER=1 permet d’éviter l’ingestion de la ligne d’en‑tête des CSV, tandis que l’option FIELD_OPTIONALLY_ENCLOSED_BY sécurise l’ingestion des champs contenant des guillemets. Après chaque chargement, une requête SELECT * assure une vérification instantanée du contenu de la table BRONZE. 
-
-
-Les fichiers JSON sont eux aussi ingérés dans des tables BRONZE, mais contrairement aux CSV, ils sont stockés dans une unique colonne VARIANT. Cela permet de conserver la structure JSON originale, avec ses attributs imbriqués. Une conséquence directe est que chaque fichier JSON contenant un tableau est ingéré sous forme d’une seule ligne, ce qui nécessitera une correction en SILVER.
-*  Table `Table JOB_POSTINGS` :
- ```sql
+### Code
+```sql
 -- Create Table JOB_POSTINGS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.JOB_POSTINGS (
     job_id STRING,
@@ -113,6 +106,7 @@ CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.JOB_POSTINGS (
     currency STRING,
     compensation_type STRING
 );
+
 -- Copy data into JOB_POSTINGS
 COPY INTO LINKEDIN.BRONZE.JOB_POSTINGS
 FROM @LINKEDIN.BRONZE.LINKEDIN_STAGE/job_postings.csv
@@ -121,41 +115,11 @@ FILE_FORMAT = (
     SKIP_HEADER = 1
     FIELD_OPTIONALLY_ENCLOSED_BY = '"'
 );
+
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.JOB_POSTINGS;
 
-```
-Cette instruction permet de créer la table `JOB_POSTINGS`  dans le schéma LINKEDIN.BRONZE avec toutes les colonnes présentes dans le fihcier csv. Ainsi, toutes les colonnes sont volontairement définies avec le type STRING, même lorsque les données représentent des nombres, des dates ou des booléens.
 
-La commande `COPY INTO` permet de charger les données du fichier job_postings.csv stocké dans le stage Snowflake vers la table JOB_POSTINGS.  
-
-Fonctionnement :
-
-* `@LINKEDIN.BRONZE.LINKEDIN_STAGE` : référence au stage externe (stockage S3)
-* `job_postings.csv` : fichier source contenant les offres d’emploi LinkedIn
-* `COPY INTO` : méthode optimisée Snowflake pour le chargement massif de données
-
-Paramètres du format CSV
-
-* `TYPE = 'CSV'` : Indique le format du fichier source
- 
-* `SKIP_HEADER` = 1 : Ignore la première ligne contenant les noms des colonnes
-
-* `FIELD_OPTIONALLY_ENCLOSED_BY` = '"' : Indispensable pour les fichiers CSV où les descriptions de postes contiennent des virgules. Cela indique à Snowflake que tout ce qui est entre guillemets appartient à la même colonne.
-
-
-Avantages de cette approche
-
-* Chargement rapide et fiable
-* Compatibilité avec les fichiers générés automatiquement
-* Réduction des erreurs liées au parsing des chaînes de caractères
-
-  Une rêquete SELECT est ajoutée à la fin afin de voir un apperçu de la table et de bien vérifier que les données sont corrrectement chrgées.
-  La même  logique est appliquée pour les autre tables dont le fichier source est un fichier csv
-
-  
-*  Table `Benefits` :
-```sql
 -- Create table BENEFITS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.BENEFITS (
     job_id STRING,
@@ -174,9 +138,7 @@ FILE_FORMAT = (
 
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.BENEFITS;
-```
-* Table `EMPLOYEE_COUNTS` 
-```sql
+
 -- Create table EMPLOYEE_COUNTS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.EMPLOYEE_COUNTS (
     company_id STRING,
@@ -196,10 +158,8 @@ FILE_FORMAT = (
 
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.EMPLOYEE_COUNTS;
-```
-* Table `JOB_SKILLS`   
-```sql
-   -- Create table JOB_SKILLS
+
+-- Create table JOB_SKILLS
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.JOB_SKILLS (
     job_id STRING,
     skill_abr STRING
@@ -216,9 +176,7 @@ FILE_FORMAT = (
 
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.JOB_SKILLS;
-```
-* Table `COMPANIES`
- ```sql
+
 -- Create table COMPANIES
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.COMPANIES (
     data VARIANT
@@ -234,30 +192,7 @@ FILE_FORMAT = (
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.COMPANIES;
 
-```
-Cette instruction permet de créer la table COMPANIES dans le schéma LINKEDIN.BRONZE dont le fichier source est sous format `JSON`.
-
-Choix du type VARIANT
-La colonne unique data est définie avec le type VARIANT, qui est un type spécifique à Snowflake permettant de stocker des données semi‑structurées telles que `JSON`.
-
-
-Dans le cadre de ce projet, les données sources sont fournies au format JSON, souvent imbriqué et non strictement tabulaire.
-Objectifs de ce choix :
-
-* Conserver l’intégralité de la structure originale du fichier JSON
-* Éviter toute perte d’information
-* Repousser l’interprétation du schéma à la couche Silver, où les données seront structurées
-
-Ce choix est cohérent avec la philosophie de la couche Bronze, qui vise à stocker les données sans transformation, telles qu’elles sont reçues.
-
-La commande `COPY INTO` suis le méme raisonement que pour les fichier csv, la seule est différence est les format spécifié est le format : `JSON` 
-
- La même la logique est appliquée pour les autre tables dont le fichier source est un fichier JSON
-
-* Table `JOB_INDUSTRIES
-  `
-```sql
-   -- Create table JOB_INDUSTRIES
+-- Create table JOB_INDUSTRIES
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.JOB_INDUSTRIES (
     data VARIANT
 );
@@ -272,10 +207,7 @@ FILE_FORMAT = (
 -- Check table content
 SELECT * FROM LINKEDIN.BRONZE.JOB_INDUSTRIES;
 
-```
-* Table `COMPANY_SPECIALITIES`
- ```sql
-   -- Create table COMPANY_SPECIALITIES
+-- Create table COMPANY_SPECIALITIES
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.COMPANY_SPECIALITIES (data VARIANT);
 -- Copy the data into table
 COPY INTO LINKEDIN.BRONZE.COMPANY_SPECIALITIES
@@ -285,10 +217,7 @@ FILE_FORMAT = (TYPE='JSON');
 -- Check table content
 select * from LINKEDIN.BRONZE.COMPANY_SPECIALITIES;
 
-```
-* Table `COMPANY_INDUSTRIES`
- ```sql
-   -- Create table COMPANY_INDUSTRIES
+-- Create table COMPANY_INDUSTRIES
 CREATE TABLE IF NOT EXISTS LINKEDIN.BRONZE.COMPANY_INDUSTRIES (data VARIANT);
 
 -- Copy the data into table
@@ -300,6 +229,42 @@ FILE_FORMAT = (TYPE='JSON');
 select * from LINKEDIN.BRONZE.COMPANY_INDUSTRIES;
 
 ```
+### Explications
+Pour chaque type de fichier source au format csv (job postings, benefits, job skills, employee counts), une table est créée dans la couche BRONZE avec toutes les colonnes définies en STRING.
+Ce choix est volontaire et s’inscrit pleinement dans la philosophie de la couche BRONZE : stocker la donnée telle qu’elle existe à la source, sans appliquer de transformation, sans typage et sans prise de décision métier.
+Cette approche garantit :
+
+* Une ingestion fiable et robuste.
+* La conservation intégrale des données sources.
+* La résilience du pipeline face aux irrégularités (formats incohérents, valeurs manquantes, chaînes vides, types mélangés).
+
+
+Chargement des fichiers CSV avec COPY INTO
+Une fois les tables BRONZE créées, la commande COPY INTO est utilisée pour importer les données depuis le stage S3 vers Snowflake.
+Plusieurs options sont spécifiées afin de sécuriser l’ingestion :
+
+*`SKIP_HEADER = 1` : permet d’ignorer la première ligne des fichiers CSV, qui contient les noms des colonnes.
+*`FIELD_OPTIONALLY_ENCLOSED_BY = '"' `: garantit une lecture correcte des champs contenant des virgules ou des retours à la ligne, notamment dans les descriptions de postes.
+* `TYPE = 'CSV'` : précise explicitement le format du fichier source.
+Cette logique est identique pour l’ensemble des fichiers dont la source est au format CSV.
+
+Les fichiers au format JSON (companies, job industries, company industries, company specialities) sont également ingérés dans la couche BRONZE.
+Contrairement aux fichiers CSV, ces derniers sont stockés dans une table contenant une unique colonne de type `VARIANT`
+Le type VARIANT est spécifique à Snowflake et permet de stocker des données semi‑structurées, telles que le JSON, sans imposer de schéma relationnel strict.
+Dans le cadre de ce projet, les fichiers JSON sont : souvent imbriqués, organisés sous forme de tableaux, non directement exploitables sous forme tabulaire.
+
+Ce choix permet :
+
+ * Conserver l’intégralité de la structure originale du fichier JSON,
+* Eviter toute perte d’information,
+* Repousser l’interprétation et la structuration des données à la couche Silver.
+La commande COPY INTO est également utilisée pour charger les fichiers JSON, en précisant simplement un format différent.La logique de chargement reste identique à celle des CSV, la seule différence réside dans le format spécifié (JSON au lieu de CSV).
+
+
+
+Après chaque chargement, une requête SELECT * est exécutée afin de vérifier immédiatement le contenu de la table BRONZE et s’assurer que les données ont été correctement ingérées
+
+
 ## II. 5.	Création des tables dans le schéma Silver
 
 ### Code
