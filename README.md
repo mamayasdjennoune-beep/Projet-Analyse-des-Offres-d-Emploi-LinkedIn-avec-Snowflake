@@ -949,23 +949,24 @@ SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS;
 - Elle est utilisée par les requêtes analytiques finales.
 - Elle sert de source principale pour l’application Streamlit.
 - La requête SELECT * FROM LINKEDIN.GOLD.JOB_ANALYTICS permet de vérifier le contenu.
-- ### Apperçu des tables du schéma Silver
-#### Table JOB_POSTINGS
+- ### Apperçu des tables du schéma Gold
+#### Table `JOB_POSTINGS`
+![job](images/job_posting_gold1.png)
+![job](images/job_posting_gold2.png)
+![job](images/job_posting_gold3.png)
 
-#### Table BENEFITS
+#### Table `COMPANY_PROFILE`
+![job](images/company_profile.png)
 
-#### Table COMPANIES
+#### Table `JOB_SKILLS`
 
-#### Table EMPLOYEE_COUNTS
+![job](images/job_skills_gold.png)
+#### Table `JOB_INDUSTRIES`
+![job](images/job_industries_gold.png)
 
-#### Table JOB_SKILLS
-
-#### Table JOB_INDUSTRIES
-
-#### Table COMPANY_INDUSTRIES
-
-#### Table COMPANY_SPECIALITIES
-
+#### Table `JOB_ANALYTICS`
+![job](images/job_analytics1.png)
+![job](images/job_analytics2.png)
 
 
 ## II. 7.	Requêtes d’analyse de données 
